@@ -1,31 +1,20 @@
 import React from 'react';
-import { ActivityIndicator, Platform, StatusBar } from 'react-native';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { useAuth } from '../../state/useAuth';
 import { useLang } from '../../state/useLang';
 import { t } from '../../i18n';
-import {
-  AccentPrimary,
-  Card,
-  Container,
-  FieldGroup,
-  FieldLabel,
-  Footer,
-  FooterLink,
-  FooterLinkButton,
-  FooterText,
-  Hero,
-  HeroBadge,
-  HeroBadgeText,
-  HeroSubtitle,
-  HeroTitle,
-  Input,
-  KeyboardWrapper,
-  LangToggle,
-  LangToggleText,
-  PrimaryButton,
-  PrimaryButtonText,
-  ScrollArea,
-} from './LoginScreen.styles';
+import { styles } from './LoginScreen.styles';
 
 type Props = {
   navigation: any;
@@ -39,74 +28,88 @@ export default function LoginScreen({ navigation }: Props) {
   const { lang, setLang } = useLang();
 
   return (
-    <Container>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <AccentPrimary />
-      <LangToggle onPress={() => setLang(lang === 'en' ? 'he' : 'en')}>
-        <LangToggleText>{lang === 'en' ? '🇮🇱 HE' : '🇬🇧 EN'}</LangToggleText>
-      </LangToggle>
+      <View style={styles.accentPrimary} />
+      <TouchableOpacity
+        onPress={() => setLang(lang === 'en' ? 'he' : 'en')}
+        style={styles.langToggle}
+        activeOpacity={0.8}
+      >
+        <Text style={styles.langToggleText}>{lang === 'en' ? '🇮🇱 HE' : '🇬🇧 EN'}</Text>
+      </TouchableOpacity>
 
-      <KeyboardWrapper behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <ScrollArea>
-          <Hero>
-            <HeroBadge>
-              <HeroBadgeText>
+      <KeyboardAvoidingView
+        style={styles.keyboardWrapper}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
+          <View style={styles.hero}>
+            <View style={styles.heroBadge}>
+              <Text style={styles.heroBadgeText}>
                 {lang === 'en' ? 'Welcome back' : 'ברוכים השבים'}
-              </HeroBadgeText>
-            </HeroBadge>
-            <HeroTitle>{t('signIn')}</HeroTitle>
-            <HeroSubtitle>
+              </Text>
+            </View>
+            <Text style={styles.heroTitle}>{t('signIn')}</Text>
+            <Text style={styles.heroSubtitle}>
               {lang === 'en'
                 ? 'Access your personalized dashboard and book in seconds.'
                 : 'התחברו לחשבון שלכם וקבעו תורים בלחיצת כפתור.'}
-            </HeroSubtitle>
-          </Hero>
+            </Text>
+          </View>
 
-          <Card>
-            <FieldGroup>
-              <FieldLabel>{lang === 'en' ? 'Email' : 'אימייל'}</FieldLabel>
-              <Input
+          <View style={styles.card}>
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>{lang === 'en' ? 'Email' : 'אימייל'}</Text>
+              <TextInput
+                style={[styles.input, focused === 'email' && styles.inputFocused]}
                 value={email}
                 onChangeText={setEmail}
                 onFocus={() => setFocused('email')}
                 onBlur={() => setFocused(null)}
                 placeholder="you@email.com"
+                placeholderTextColor="rgba(0,0,0,0.35)"
                 autoCapitalize="none"
                 keyboardType="email-address"
-                $focused={focused === 'email'}
               />
-            </FieldGroup>
+            </View>
 
-            <FieldGroup>
-              <FieldLabel>{lang === 'en' ? 'Password' : 'סיסמה'}</FieldLabel>
-              <Input
+            <View style={styles.fieldGroup}>
+              <Text style={styles.fieldLabel}>{lang === 'en' ? 'Password' : 'סיסמה'}</Text>
+              <TextInput
+                style={[styles.input, focused === 'password' && styles.inputFocused]}
                 value={password}
                 onChangeText={setPassword}
                 onFocus={() => setFocused('password')}
                 onBlur={() => setFocused(null)}
                 placeholder="••••••••"
+                placeholderTextColor="rgba(0,0,0,0.35)"
                 secureTextEntry
-                $focused={focused === 'password'}
               />
-            </FieldGroup>
+            </View>
 
-            <PrimaryButton disabled={loading} onPress={() => signIn(email, password)}>
+            <TouchableOpacity
+              style={styles.primaryButton}
+              disabled={loading}
+              onPress={() => signIn(email, password)}
+              activeOpacity={0.9}
+            >
               {loading ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <PrimaryButtonText>{t('signIn')}</PrimaryButtonText>
+                <Text style={styles.primaryButtonText}>{t('signIn')}</Text>
               )}
-            </PrimaryButton>
+            </TouchableOpacity>
 
-            <Footer>
-              <FooterText>{lang === 'en' ? 'New to Aviv?' : 'חדשים באביב?'}</FooterText>
-              <FooterLinkButton onPress={() => navigation.navigate('Register')}>
-                <FooterLink>{lang === 'en' ? 'Create an account' : 'צרו חשבון חדש'}</FooterLink>
-              </FooterLinkButton>
-            </Footer>
-          </Card>
-        </ScrollArea>
-      </KeyboardWrapper>
-    </Container>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>{lang === 'en' ? 'New to Aviv?' : 'חדשים באביב?'}</Text>
+              <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+                <Text style={styles.footerLink}>{lang === 'en' ? 'Create an account' : 'צרו חשבון חדש'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }

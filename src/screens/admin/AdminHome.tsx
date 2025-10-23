@@ -1,75 +1,33 @@
 import React from 'react';
-import { ActivityIndicator, Alert, I18nManager, Modal, StatusBar, TouchableWithoutFeedback } from 'react-native';
+import {
+  ActivityIndicator,
+  Alert,
+  I18nManager,
+  Modal,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  Text,
+  TouchableOpacity,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { Feather, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useAuth } from '../../state/useAuth';
 import { useLang } from '../../state/useLang';
 import { supabase } from '../../lib/supabase';
 import { addDays, format, startOfDay } from 'date-fns';
-import {
-  AccentPrimary,
-  AccentSecondary,
-  Brand,
-  BrandGroup,
-  BrandSub,
-  Container,
-  Hero,
-  HeroBadge,
-  HeroBadgeText,
-  HeroSubtitle,
-  HeroTitle,
-  MenuBackdrop,
-  MenuButton,
-  MenuDivider,
-  MenuHeader,
-  MenuHeaderMeta,
-  MenuHeaderName,
-  MenuIconAccent,
-  MenuIconWrap,
-  MenuItem,
-  MenuLabel,
-  MenuLabelAccent,
-  MenuSheet,
-  ModalContainer,
-  NavBar,
-  NavShell,
-  ProfileAvatarLg,
-  ProfileAvatarLgText,
-  ProfileButton,
-  ProfileCloseButton,
-  ProfileCloseText,
-  ProfileEmail,
-  ProfileIndicator,
-  ProfileName,
-  ProfileRole,
-  ProfileSheet,
-  ScheduleCard,
-  ScheduleClient,
-  ScheduleEmpty,
-  ScheduleEmptyText,
-  ScheduleEmptyTitle,
-  ScheduleHeader,
-  ScheduleHeading,
-  ScheduleInfo,
-  ScheduleList,
-  ScheduleLoading,
-  ScheduleRow,
-  ScheduleService,
-  ScheduleStatusPill,
-  ScheduleStatusText,
-  ScheduleSubtitle,
-  ScheduleTime,
-  ScheduleTimeDay,
-  ScheduleTimeHour,
-  ScheduleTitle,
-  SchedulerCta,
-  SchedulerCtaText,
-  ScrollArea,
-  ViewAllButton,
-  ViewAllText,
-} from './AdminHome.styles';
+import { styles } from './AdminHome.styles';
 
 type Props = {
   navigation: any;
+};
+
+type MenuItem = {
+  key: string;
+  label: string;
+  icon: (color: string) => React.ReactNode;
+  action: () => void;
 };
 
 export default function AdminHome({ navigation }: Props) {
@@ -109,7 +67,7 @@ export default function AdminHome({ navigation }: Props) {
     loadSchedule();
   }, [loadSchedule]);
 
-  const menuItems = React.useMemo(
+  const menuItems: MenuItem[] = React.useMemo(
     () => [
       {
         key: 'home',
@@ -172,27 +130,36 @@ export default function AdminHome({ navigation }: Props) {
   const email = session?.user?.email ?? '';
 
   return (
-    <Container>
+    <SafeAreaView style={styles.container}>
       <StatusBar barStyle="light-content" />
-      <AccentPrimary />
-      <AccentSecondary />
-      <NavShell>
-        <NavBar $rtl={isRTL}>
-          <ProfileButton onPress={() => setShowProfile(true)} activeOpacity={0.8}>
+      <View style={styles.accentPrimary} />
+      <View style={styles.accentSecondary} />
+
+      <View style={styles.navShell}>
+        <View style={[styles.navBar, isRTL && { flexDirection: 'row-reverse' }]}>
+          <TouchableOpacity
+            onPress={() => setShowProfile(true)}
+            style={styles.profileButton}
+            activeOpacity={0.8}
+          >
             <Feather name="user" size={18} color="#FFFFFF" />
-            <ProfileIndicator />
-          </ProfileButton>
+            <View style={styles.profileIndicator} />
+          </TouchableOpacity>
 
-          <BrandGroup>
-            <Brand>Aviv</Brand>
-            <BrandSub>{lang === 'en' ? 'Admin console' : 'מרכז הניהול'}</BrandSub>
-          </BrandGroup>
+          <View style={styles.brandGroup}>
+            <Text style={styles.brand}>Aviv</Text>
+            <Text style={styles.brandSub}>{lang === 'en' ? 'Admin console' : 'מרכז הניהול'}</Text>
+          </View>
 
-          <MenuButton onPress={() => setMenuOpen(true)} activeOpacity={0.8}>
+          <TouchableOpacity
+            onPress={() => setMenuOpen(true)}
+            style={styles.menuButton}
+            activeOpacity={0.8}
+          >
             <Feather name="menu" size={20} color="#FFFFFF" />
-          </MenuButton>
-        </NavBar>
-      </NavShell>
+          </TouchableOpacity>
+        </View>
+      </View>
 
       <MenuModal
         visible={menuOpen}
@@ -221,100 +188,105 @@ export default function AdminHome({ navigation }: Props) {
         lang={lang}
       />
 
-      <ScrollArea>
-        <Hero>
-          <HeroBadge>
-            <HeroBadgeText>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <View style={styles.hero}>
+          <View style={styles.heroBadge}>
+            <Text style={styles.heroBadgeText}>
               {lang === 'en' ? "Today's overview" : 'סקירה יומית'}
-            </HeroBadgeText>
-          </HeroBadge>
-          <HeroTitle>
+            </Text>
+          </View>
+          <Text style={styles.heroTitle}>
             {lang === 'en'
               ? `Morning, ${profile?.full_name ?? 'team'}`
               : `בוקר טוב, ${profile?.full_name ?? 'צוות'}`}
-          </HeroTitle>
-          <HeroSubtitle>
+          </Text>
+          <Text style={styles.heroSubtitle}>
             {lang === 'en'
               ? 'Monitor appointments, manage services, and keep the schedule flowing smoothly.'
               : 'עקבו אחרי התורים, עדכנו שירותים ושמרו על יומן מאורגן ויעיל.'}
-          </HeroSubtitle>
-        </Hero>
+          </Text>
+        </View>
 
-        <ScheduleCard>
-          <ScheduleHeader $rtl={isRTL}>
-            <ScheduleHeading $rtl={isRTL}>
-              <ScheduleTitle>
+        <View style={styles.scheduleCard}>
+          <View style={[styles.scheduleHeader, isRTL && { flexDirection: 'row-reverse' }]}>
+            <View style={[styles.scheduleHeading, isRTL && { alignItems: 'flex-end' }]}>
+              <Text style={styles.scheduleTitle}>
                 {lang === 'en' ? "Today's schedule" : 'יומן להיום'}
-              </ScheduleTitle>
-              <ScheduleSubtitle>
+              </Text>
+              <Text style={styles.scheduleSubtitle}>
                 {lang === 'en' ? 'All bookings for the day' : 'כל התורים של היום'}
-              </ScheduleSubtitle>
-            </ScheduleHeading>
-            <ViewAllButton onPress={() => navigation.navigate('AdminAppointments')}>
-              <ViewAllText>{lang === 'en' ? 'View all' : 'צפו בכל'}</ViewAllText>
-            </ViewAllButton>
-          </ScheduleHeader>
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AdminAppointments')}
+              style={styles.viewAllButton}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.viewAllText}>{lang === 'en' ? 'View all' : 'צפו בכל'}</Text>
+            </TouchableOpacity>
+          </View>
 
           {loadingSchedule ? (
-            <ScheduleLoading>
+            <View style={styles.scheduleLoading}>
               <ActivityIndicator color="#111111" />
-            </ScheduleLoading>
+            </View>
           ) : appointments.length === 0 ? (
-            <ScheduleEmpty>
-              <ScheduleEmptyTitle>
+            <View style={styles.scheduleEmpty}>
+              <Text style={styles.scheduleEmptyTitle}>
                 {lang === 'en' ? 'No appointments yet' : 'אין תורים קרובים'}
-              </ScheduleEmptyTitle>
-              <ScheduleEmptyText>
+              </Text>
+              <Text style={styles.scheduleEmptyText}>
                 {lang === 'en'
                   ? 'Once clients start booking, they will appear here automatically.'
                   : 'כשהלקוחות יתחילו לקבוע, התורים יוצגו כאן באופן אוטומטי.'}
-              </ScheduleEmptyText>
-              <SchedulerCta onPress={() => navigation.navigate('AdminAvailability')}>
-                <SchedulerCtaText>
+              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('AdminAvailability')}
+                style={styles.schedulerCta}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.schedulerCtaText}>
                   {lang === 'en' ? 'Set availability' : 'הגדירו זמינות'}
-                </SchedulerCtaText>
-              </SchedulerCta>
-            </ScheduleEmpty>
+                </Text>
+              </TouchableOpacity>
+            </View>
           ) : (
-            <ScheduleList>
+            <View style={styles.scheduleList}>
               {appointments.map((item) => (
-                <ScheduleRow key={item.id} $rtl={isRTL}>
-                  <ScheduleTime>
-                    <ScheduleTimeDay>
+                <View key={item.id} style={[styles.scheduleRow, isRTL && { flexDirection: 'row-reverse' }]}>
+                  <View style={styles.scheduleTime}>
+                    <Text style={styles.scheduleTimeDay}>
                       {format(new Date(item.start_at), 'EEE').toUpperCase()}
-                    </ScheduleTimeDay>
-                    <ScheduleTimeHour>{format(new Date(item.start_at), 'HH:mm')}</ScheduleTimeHour>
-                  </ScheduleTime>
-                  <ScheduleInfo $rtl={isRTL}>
-                    <ScheduleClient>
+                    </Text>
+                    <Text style={styles.scheduleTimeHour}>
+                      {format(new Date(item.start_at), 'HH:mm')}
+                    </Text>
+                  </View>
+                  <View style={[styles.scheduleInfo, isRTL && { alignItems: 'flex-end' }]}>
+                    <Text style={styles.scheduleClient}>
                       {item.profiles?.full_name ?? (lang === 'en' ? 'Client' : 'לקוח')}
-                    </ScheduleClient>
-                    <ScheduleService>
+                    </Text>
+                    <Text style={styles.scheduleService}>
                       {item.services?.name ?? (lang === 'en' ? 'Service' : 'שירות')}
-                    </ScheduleService>
-                  </ScheduleInfo>
-                  <ScheduleStatusPill>
-                    <ScheduleStatusText>{formatStatus(item.status)}</ScheduleStatusText>
-                  </ScheduleStatusPill>
-                </ScheduleRow>
+                    </Text>
+                  </View>
+                  <View style={styles.scheduleStatusPill}>
+                    <Text style={styles.scheduleStatusText}>{formatStatus(item.status)}</Text>
+                  </View>
+                </View>
               ))}
-            </ScheduleList>
+            </View>
           )}
-        </ScheduleCard>
-      </ScrollArea>
-    </Container>
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
- type MenuModalProps = {
+type MenuModalProps = {
   visible: boolean;
   dismiss: () => void;
-  items: Array<{
-    key: string;
-    label: string;
-    icon: (color: string) => React.ReactNode;
-    action: () => void;
-  }>;
+  items: MenuItem[];
   onSelect: (action: () => void) => void;
   onSignOut: () => void;
   profileName?: string | null;
@@ -334,42 +306,53 @@ function MenuModal({
 }: MenuModalProps) {
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={dismiss}>
-      <ModalContainer>
+      <View style={styles.modalContainer}>
         <TouchableWithoutFeedback onPress={dismiss}>
-          <MenuBackdrop />
+          <View style={styles.menuBackdrop} />
         </TouchableWithoutFeedback>
-        <MenuSheet $rtl={isRTL}>
-          <MenuHeader $rtl={isRTL}>
-            <MenuHeaderName>
+        <View
+          style={[
+            styles.menuSheet,
+            isRTL ? { left: 24, right: undefined, alignItems: 'flex-end' } : undefined,
+          ]}
+        >
+          <View style={[styles.menuHeader, isRTL && { alignItems: 'flex-end' }]}> 
+            <Text style={styles.menuHeaderName}>
               {profileName ?? (lang === 'en' ? 'Aviv Admin' : 'מנהל אביב')}
-            </MenuHeaderName>
-            <MenuHeaderMeta>{lang === 'en' ? 'Quick actions' : 'פעולות מהירות'}</MenuHeaderMeta>
-          </MenuHeader>
+            </Text>
+            <Text style={styles.menuHeaderMeta}>
+              {lang === 'en' ? 'Quick actions' : 'פעולות מהירות'}
+            </Text>
+          </View>
           {items.map((item) => (
-            <MenuItem
+            <TouchableOpacity
               key={item.key}
-              $rtl={isRTL}
+              style={[styles.menuItem, isRTL && { flexDirection: 'row-reverse' }]}
               activeOpacity={0.75}
               onPress={() => onSelect(item.action)}
             >
-              <MenuIconWrap>{item.icon('#FFFFFF')}</MenuIconWrap>
-              <MenuLabel>{item.label}</MenuLabel>
-            </MenuItem>
+              <View style={styles.menuIconWrap}>{item.icon('#FFFFFF')}</View>
+              <Text style={styles.menuLabel}>{item.label}</Text>
+            </TouchableOpacity>
           ))}
-          <MenuDivider />
-          <MenuItem $rtl={isRTL} activeOpacity={0.75} onPress={onSignOut}>
-            <MenuIconAccent>
+          <View style={styles.menuDivider} />
+          <TouchableOpacity
+            style={[styles.menuItem, isRTL && { flexDirection: 'row-reverse' }]}
+            activeOpacity={0.75}
+            onPress={onSignOut}
+          >
+            <View style={[styles.menuIconWrap, styles.menuIconAccent]}>
               <Feather name="log-out" size={18} color="#FF6B6B" />
-            </MenuIconAccent>
-            <MenuLabelAccent>{lang === 'en' ? 'Sign out' : 'התנתק'}</MenuLabelAccent>
-          </MenuItem>
-        </MenuSheet>
-      </ModalContainer>
+            </View>
+            <Text style={styles.menuLabelAccent}>{lang === 'en' ? 'Sign out' : 'התנתק'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
 
- type ProfileModalProps = {
+type ProfileModalProps = {
   visible: boolean;
   dismiss: () => void;
   initials: string;
@@ -382,26 +365,26 @@ function MenuModal({
 function ProfileModal({ visible, dismiss, initials, name, email, role, lang }: ProfileModalProps) {
   return (
     <Modal visible={visible} animationType="fade" transparent onRequestClose={dismiss}>
-      <ModalContainer>
+      <View style={styles.modalContainer}>
         <TouchableWithoutFeedback onPress={dismiss}>
-          <MenuBackdrop />
+          <View style={styles.menuBackdrop} />
         </TouchableWithoutFeedback>
-        <ProfileSheet>
-          <ProfileAvatarLg>
-            <ProfileAvatarLgText>{initials}</ProfileAvatarLgText>
-          </ProfileAvatarLg>
-          <ProfileName>{name}</ProfileName>
-          <ProfileEmail>
+        <View style={styles.profileSheet}>
+          <View style={styles.profileAvatar}>
+            <Text style={styles.profileAvatarText}>{initials}</Text>
+          </View>
+          <Text style={styles.profileName}>{name}</Text>
+          <Text style={styles.profileEmail}>
             {email || (lang === 'en' ? 'No email on file' : 'אין כתובת דוא״ל')}
-          </ProfileEmail>
-          <ProfileRole>
+          </Text>
+          <Text style={styles.profileRole}>
             {lang === 'en' ? 'Role' : 'תפקיד'} · {role}
-          </ProfileRole>
-          <ProfileCloseButton onPress={dismiss}>
-            <ProfileCloseText>{lang === 'en' ? 'Close' : 'סגור'}</ProfileCloseText>
-          </ProfileCloseButton>
-        </ProfileSheet>
-      </ModalContainer>
+          </Text>
+          <TouchableOpacity style={styles.profileCloseButton} onPress={dismiss}>
+            <Text style={styles.profileCloseText}>{lang === 'en' ? 'Close' : 'סגור'}</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </Modal>
   );
 }
